@@ -1,0 +1,23 @@
+--------- beginning of main
+10-07 01:00:00.100  4321  4321 I MainActivity: onCreate
+10-07 01:00:00.200  4321  4321 D Sync: heartbeat 1
+10-07 01:00:01.200  4321  4321 D Sync: heartbeat 2
+10-07 01:00:02.200  4321  4321 D Sync: heartbeat 3
+10-07 01:00:02.300  9999  9999 I OtherApp: should be filtered out by pid
+10-07 01:00:02.400  4321  4400 W OkHttp: retrying request to https://api.acme.com/v1/feed
+10-07 01:00:02.500  4321  4400 E Repo: failed to load feed
+10-07 01:00:02.501  4321  4400 E Repo: java.net.UnknownHostException: api.acme.com
+10-07 01:00:02.502  4321  4400 E Repo: 	at java.net.InetAddress.getAllByName(InetAddress.java:1)
+10-07 01:00:02.503  4321  4400 E Repo: 	at com.acme.data.Repo.load(Repo.kt:44)
+10-07 01:00:03.000  4321  4321 D Sync: heartbeat 4
+10-07 01:00:05.000  4321  4321 E AndroidRuntime: FATAL EXCEPTION: main
+10-07 01:00:05.000  4321  4321 E AndroidRuntime: Process: com.acme.app, PID: 4321
+10-07 01:00:05.000  4321  4321 E AndroidRuntime: java.lang.IllegalStateException: Fragment not attached
+10-07 01:00:05.000  4321  4321 E AndroidRuntime: 	at androidx.fragment.app.Fragment.requireContext(Fragment.java:900)
+10-07 01:00:05.000  4321  4321 E AndroidRuntime: 	at com.acme.ui.FeedFragment.render(FeedFragment.kt:88)
+10-07 01:00:05.000  4321  4321 E AndroidRuntime: 	at com.acme.ui.FeedFragment$onViewCreated$1.invokeSuspend(FeedFragment.kt:51)
+10-07 01:00:05.000  4321  4321 E AndroidRuntime: 	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+10-07 01:00:05.000  4321  4321 E AndroidRuntime: Caused by: java.lang.NullPointerException: feed was null
+10-07 01:00:05.000  4321  4321 E AndroidRuntime: 	at com.acme.data.Repo.parse(Repo.kt:70)
+10-07 01:00:05.000  4321  4321 E AndroidRuntime: 	... 12 more
+10-07 01:00:05.100   500   500 E ActivityManager: ANR in com.other.app (com.other.app/.Main)

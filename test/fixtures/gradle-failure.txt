@@ -1,0 +1,35 @@
+Starting a Gradle Daemon (subsequent builds will be faster)
+> Configure project :app
+WARNING: The option setting 'android.defaults.buildfeatures.buildconfig=true' is deprecated.
+WARNING: The option setting 'android.defaults.buildfeatures.buildconfig=true' is deprecated.
+> Task :app:preBuild UP-TO-DATE
+> Task :app:compileDebugKotlin
+w: file:///home/dev/app/src/main/java/com/acme/ui/Home.kt:21:9 Variable 'x' is never used
+w: file:///home/dev/app/src/main/java/com/acme/ui/Detail.kt:44:9 Variable 'y' is never used
+w: file:///home/dev/app/src/main/java/com/acme/ui/Detail.kt:51:9 Variable 'z' is never used
+e: file:///home/dev/app/src/main/java/com/acme/ui/Home.kt:42:17 Unresolved reference: fooBar
+e: file:///home/dev/app/src/main/java/com/acme/ui/Home.kt:42:17 Unresolved reference: fooBar
+e: file:///home/dev/app/src/main/java/com/acme/data/Repo.kt:10:5 Type mismatch: inferred type is String but Int was expected
+
+> Task :app:compileDebugKotlin FAILED
+> Task :app:compileDebugJavaWithJavac
+/home/dev/app/src/main/java/com/acme/Legacy.java:7: error: cannot find symbol
+        Foo f = new Foo();
+        ^
+  symbol:   class Foo
+  location: class Legacy
+Note: Some input files use or override a deprecated API.
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:compileDebugKotlin'.
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+
+BUILD FAILED in 14s
+34 actionable tasks: 2 executed, 32 up-to-date
