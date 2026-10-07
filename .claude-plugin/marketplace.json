@@ -1,0 +1,12 @@
+{
+  "name": "android-toolkit",
+  "description": "Android development tools for Claude Code",
+  "owner": { "name": "Dante3750", "url": "https://github.com/Dante3750" },
+  "plugins": [
+    {
+      "name": "android-mcp-toolkit",
+      "source": "./",
+      "description": "Token-efficient Gradle build/test/lint, logcat and device control for Android, with slash commands and a dev-loop skill."
+    }
+  ]
+}

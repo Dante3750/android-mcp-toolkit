@@ -3,6 +3,7 @@ import { promisify } from 'node:util';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { adb, getPid } from './adb.js';
+import { capText, clip } from './util.js';
 
 const execFileP = promisify(execFile);
 
@@ -31,7 +32,7 @@ function fingerprint(e) {
  *  - dedupes repeated/near-identical lines (x N)
  *  - extracts crashes (FATAL EXCEPTION) and ANRs into a separate list
  */
-export function condenseLogcat(raw, { pid, minLevel = 'I', tags, maxLines = 80, appPackage, stackFrames = 6 } = {}) {
+export function condenseLogcat(raw, { pid, minLevel = 'I', tags, maxLines = 80, appPackage, stackFrames = 6, sinceTime } = {}) {
   const min = LEVEL_RANK[minLevel] ?? 2;
   const lines = raw.split(/\r?\n/);
 
@@ -52,6 +53,7 @@ export function condenseLogcat(raw, { pid, minLevel = 'I', tags, maxLines = 80, 
     const e = entries[i];
     if (pid && e.pid !== pid && !(e.tag === 'AndroidRuntime' || e.tag === 'ActivityManager')) continue;
 
+    if (sinceTime && e.time < sinceTime) continue;
     if (e.tag === 'AndroidRuntime' && /FATAL EXCEPTION/.test(e.msg)) {
       const block = [];
       let j = i + 1;
@@ -98,6 +100,7 @@ export function condenseLogcat(raw, { pid, minLevel = 'I', tags, maxLines = 80, 
     if (e.tag === 'AndroidRuntime') continue; // crashes reported separately
     if ((LEVEL_RANK[e.level] ?? 0) < min) continue;
     if (tags && tags.length && !tags.includes(e.tag)) continue;
+    if (sinceTime && e.time < sinceTime) continue;
     total++;
 
     const fp = fingerprint(e);
@@ -122,8 +125,10 @@ export function condenseLogcat(raw, { pid, minLevel = 'I', tags, maxLines = 80, 
   if (out.length > maxLines) {
     const important = out.filter((o) => LEVEL_RANK[o.level] >= 3);
     const rest = out.filter((o) => LEVEL_RANK[o.level] < 3);
-    const keepRest = Math.max(0, maxLines - important.length);
-    const keepSet = new Set([...important, ...rest.slice(-keepRest)]);
+    // Hard cap: if warnings/errors alone exceed maxLines, keep the most recent ones.
+    const keptImportant = important.length > maxLines ? important.slice(important.length - maxLines) : important;
+    const keepRest = Math.max(0, maxLines - keptImportant.length);
+    const keepSet = new Set([...keptImportant, ...(keepRest ? rest.slice(-keepRest) : [])]);
     shown = out.filter((o) => keepSet.has(o));
     truncated = out.length - shown.length;
   }
@@ -160,7 +165,7 @@ export function formatLogcat(r) {
 
   if (r.lines.length) out.push('');
   for (const l of r.lines) {
-    out.push(`${l.time.slice(6)} ${l.level}/${l.tag}: ${l.msg}${l.count > 1 ? ` (x${l.count})` : ''}`);
+    out.push(`${l.time.slice(6)} ${l.level}/${l.tag}: ${clip(l.msg, 300)}${l.count > 1 ? ` (x${l.count})` : ''}`);
     if (l.stack) l.stack.forEach((s) => out.push(`    ${s}`));
   }
   return out.join('\n');
@@ -191,15 +196,47 @@ export async function retraceText(text, mappingFile) {
   });
 }
 
-/** Fetch logcat from a device and condense it. */
-export async function readLogcat({ serial, appPackage, minLevel = 'I', tags, maxLines = 80, sinceLines = 5000, mappingFile, clear = false } = {}) {
+/** Parse "MM-DD HH:MM:SS.mmm" (no year) to ms in a fixed leap year; null if malformed. */
+export function parseLogTime(t) {
+  const m = t?.match(/^(\d\d)-(\d\d) (\d\d):(\d\d):(\d\d)\.(\d{3})/);
+  return m ? Date.UTC(2000, +m[1] - 1, +m[2], +m[3], +m[4], +m[5], +m[6]) : null;
+}
+const pad = (n, w = 2) => String(n).padStart(w, '0');
+function fmtLogTime(ms) {
+  const d = new Date(ms);
+  return `${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}.${pad(d.getUTCMilliseconds(), 3)}`;
+}
+
+/** Cutoff timestamp string (logcat time format) for "the last sinceMs ms" relative to nowStr (device time). */
+export function sinceCutoff(nowStr, sinceMs) {
+  const now = parseLogTime(nowStr);
+  return now == null ? undefined : fmtLogTime(now - sinceMs);
+}
+
+/** Latest entry timestamp in raw logcat output (fallback "now" when the device clock can't be read). */
+export function lastLogTime(raw) {
+  const all = raw.match(/^\d\d-\d\d \d\d:\d\d:\d\d\.\d{3}/gm);
+  return all ? all[all.length - 1] : undefined;
+}
+
+/** Fetch logcat from a device and condense it. `lines` is an alias for maxLines; `tag` adds to `tags`. */
+export async function readLogcat({ serial, appPackage, minLevel = 'I', tags, tag, lines, maxLines = 80, sinceLines = 5000, sinceMs, mappingFile, clear = false, maxChars = 12000 } = {}) {
+  const tagList = [...(tags || []), ...(tag ? [tag] : [])];
+  const shown = lines ?? maxLines;
   const pid = appPackage ? await getPid(appPackage, { serial }) : null;
   const { stdout } = await adb(['logcat', '-d', '-v', 'threadtime', '-t', String(sinceLines)], { serial, timeoutMs: 30000 });
 
-  const result = condenseLogcat(stdout, { pid, minLevel, tags, maxLines, appPackage });
+  let sinceTime;
+  if (sinceMs) {
+    let now;
+    try { now = (await adb(['shell', 'date', '+%m-%d %H:%M:%S.000'], { serial })).stdout.trim(); } catch { /* fall back below */ }
+    sinceTime = sinceCutoff(parseLogTime(now) != null ? now : lastLogTime(stdout), sinceMs);
+  }
+
+  const result = condenseLogcat(stdout, { pid, minLevel, tags: tagList, maxLines: shown, appPackage, sinceTime });
   // A crashed app has no live pid, so also report crashes from its process name even when pid is gone
   if (appPackage && !pid && result.crashes.length === 0) {
-    const crashOnly = condenseLogcat(stdout, { minLevel: 'F', maxLines: 0, appPackage });
+    const crashOnly = condenseLogcat(stdout, { minLevel: 'F', maxLines: 0, appPackage, sinceTime });
     result.crashes = crashOnly.crashes.filter((c) => !c.process || c.process.includes(appPackage));
   }
 
@@ -210,5 +247,5 @@ export async function readLogcat({ serial, appPackage, minLevel = 'I', tags, max
     else text += '\n\n(mappingFile given but retrace was not available; set RETRACE_PATH or install Android cmdline-tools)';
   }
   if (clear) await adb(['logcat', '-c'], { serial });
-  return { text, pid, result };
+  return { text: capText(text, maxChars), pid, result };
 }

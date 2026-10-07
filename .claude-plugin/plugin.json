@@ -1,0 +1,11 @@
+{
+  "name": "android-mcp-toolkit",
+  "displayName": "Android MCP Toolkit",
+  "version": "0.2.0",
+  "description": "Compact Gradle, test, lint, logcat and device tools for Android development, plus /android-build, /android-crash, /android-ui-check and a dev-loop skill.",
+  "author": { "name": "Dante3750", "url": "https://github.com/Dante3750" },
+  "homepage": "https://github.com/Dante3750/android-mcp-toolkit",
+  "repository": "https://github.com/Dante3750/android-mcp-toolkit",
+  "license": "MIT",
+  "keywords": ["android", "gradle", "logcat", "adb", "mcp"]
+}
