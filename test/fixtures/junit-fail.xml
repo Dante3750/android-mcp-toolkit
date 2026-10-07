@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.acme.login.LoginViewModelTest" tests="4" skipped="1" failures="2" errors="0" timestamp="2026-03-01T10:00:00" hostname="ci" time="0.312">
+  <properties/>
+  <testcase name="valid email passes" classname="com.acme.login.LoginViewModelTest" time="0.010"/>
+  <testcase name="empty password is rejected" classname="com.acme.login.LoginViewModelTest" time="0.021">
+    <failure message="java.lang.AssertionError: expected:&lt;ERROR&gt; but was:&lt;IDLE&gt;" type="java.lang.AssertionError">java.lang.AssertionError: expected:&lt;ERROR&gt; but was:&lt;IDLE&gt;
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertEquals(Assert.java:135)
+	at com.acme.login.LoginViewModelTest.empty password is rejected(LoginViewModelTest.kt:48)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+</failure>
+  </testcase>
+  <testcase name="network error shows retry" classname="com.acme.login.LoginViewModelTest" time="0.050">
+    <error message="java.lang.NullPointerException: repo was null" type="java.lang.NullPointerException">java.lang.NullPointerException: repo was null
+	at com.acme.login.LoginViewModel.submit(LoginViewModel.kt:77)
+	at com.acme.login.LoginViewModelTest.network error shows retry(LoginViewModelTest.kt:60)
+</error>
+  </testcase>
+  <testcase name="ignored case" classname="com.acme.login.LoginViewModelTest" time="0.0">
+    <skipped/>
+  </testcase>
+</testsuite>

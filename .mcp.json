@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "android": {
+      "command": "npx",
+      "args": ["-y", "github:Dante3750/android-mcp-toolkit"]
+    }
+  }
+}

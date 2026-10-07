@@ -1,19 +1,43 @@
 {
   "name": "android-mcp-toolkit",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "MCP server that gives AI agents clean, low-noise access to Gradle builds, logcat and ADB devices",
   "type": "module",
   "main": "src/server.js",
   "bin": {
-    "android-mcp-toolkit": "src/server.js"
+    "android-mcp-toolkit": "src/cli.js"
   },
   "scripts": {
-    "start": "node src/server.js",
+    "start": "node src/cli.js",
     "test": "node --test test/*.test.js"
   },
   "license": "MIT",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.32.1",
     "zod": "^4.6.5"
-  }
+  },
+  "files": [
+    "src",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "mcp",
+    "android",
+    "gradle",
+    "logcat",
+    "adb",
+    "claude-code",
+    "model-context-protocol"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Dante3750/android-mcp-toolkit.git"
+  },
+  "homepage": "https://github.com/Dante3750/android-mcp-toolkit#readme",
+  "author": "Dante3750"
 }
