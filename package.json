@@ -1,6 +1,6 @@
 {
   "name": "android-mcp-toolkit",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "MCP server that gives AI agents clean, low-noise access to Gradle builds, logcat and ADB devices",
   "type": "module",
   "main": "src/server.js",

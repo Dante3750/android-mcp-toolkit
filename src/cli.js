@@ -9,6 +9,8 @@ const HELP = `android-mcp-toolkit ${version()}
 MCP server giving AI agents compact access to Gradle, logcat and adb.
 
 Usage:
+  npx -y github:Dante3750/android-mcp-toolkit setup      ONE command: configure every AI agent found on this machine
+                                                          [--dry-run] [--agent=claude-code|claude-desktop|cursor|windsurf|gemini|codex|opencode]
   npx -y github:Dante3750/android-mcp-toolkit            start the MCP server (stdio)
   ... init [--write] [--client=claude|cursor|vscode|windsurf] [--global] [--force]
                                                           print (or merge) MCP config for your editor
@@ -18,6 +20,7 @@ Usage:
 
 if (cmd === '--version' || cmd === '-v' || cmd === 'version') console.log(version());
 else if (cmd === '--help' || cmd === '-h' || cmd === 'help') console.log(HELP);
+else if (cmd === 'setup') process.exitCode = (await import('./setup.js')).runSetup(rest);
 else if (cmd === 'init') process.exitCode = (await import('./init.js')).runInit(rest);
 else if (cmd === 'doctor') process.exitCode = await (await import('./doctor.js')).runDoctor();
 else if (cmd) { console.error(`Unknown command "${cmd}".\n\n${HELP}`); process.exitCode = 2; }

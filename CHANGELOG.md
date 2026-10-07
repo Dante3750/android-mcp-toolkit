@@ -21,3 +21,6 @@
 
 ## 0.1.0
 - Initial release: `gradle_build`, `logcat`, `logcat_clear`, device and UI tools.
+
+## 0.2.1
+- `setup`: one command that configures every detected agent (Claude Code, Claude Desktop, Cursor, Windsurf, Gemini CLI, Codex CLI, opencode); `--dry-run`, `--agent=`.

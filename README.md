@@ -4,6 +4,17 @@ An MCP server that gives AI coding agents (Claude Code, Cursor, VS Code, Windsur
 
 Raw `./gradlew` output, `adb logcat` and screenshots burn thousands of tokens on noise. These tools return only what an agent needs to act, with hard output caps and an explicit `(truncated N more)` marker.
 
+
+## Install: one command, any agent
+
+```bash
+npx -y github:Dante3750/android-mcp-toolkit setup
+```
+
+It finds the AI agents on your machine (Claude Code, Claude Desktop, Cursor, Windsurf, Gemini CLI, OpenAI Codex CLI, opencode) and adds this server to each one at user level, so it works in every Android project. Other servers in your config are never touched, and existing files get a `.bak` backup. Preview first with `setup --dry-run`, or target one agent with `setup --agent=cursor`. Restart your agent afterwards.
+
+Check your machine (node, adb, devices, gradlew, java): `npx -y github:Dante3750/android-mcp-toolkit doctor`
+
 ## Quick start (one-liners)
 
 **Claude Code**
